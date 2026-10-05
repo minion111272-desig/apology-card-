@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A Sorry Card</title>
+<style>
+:root{--bg:#fff0f3;--fg:#5a1a2b;--accent:#e63e6d;--card:#ffffff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#2a1320;--fg:#ffe3ea;--accent:#ff6b93;--card:#3b1c2c}}
+:root[data-theme="dark"]{--bg:#2a1320;--fg:#ffe3ea;--accent:#ff6b93;--card:#3b1c2c}
+html,body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--fg);font-family:Georgia,'Times New Roman',serif;touch-action:pan-y;user-select:none;-webkit-user-select:none}
+#track{display:flex;height:100%;width:300%;transition:transform .5s ease}
+.page{width:calc(100% / 3);height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;box-sizing:border-box}
+h1{font-size:2rem;margin:0 0 12px}
+p{font-size:1.1rem;margin:8px 0}
+.hint{margin-top:36px;color:var(--accent);font-size:1rem;animation:nudge 1.4s infinite}
+@keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(-14px)}}
+#face{width:min(70vw,280px);cursor:pointer;transition:transform .1s;-webkit-tap-highlight-color:transparent}
+#face.shake{animation:shake .4s}
+@keyframes shake{0%,100%{transform:translateX(0) rotate(0)}20%{transform:translateX(-12px) rotate(-6deg)}40%{transform:translateX(12px) rotate(6deg)}60%{transform:translateX(-8px) rotate(-3deg)}80%{transform:translateX(8px) rotate(3deg)}}
+#msg{min-height:3em;font-size:1.3rem;color:var(--accent);margin-top:16px}
+#dots{display:flex;gap:10px;margin-top:8px}
+.dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--accent)}
+.dot.on{background:var(--accent)}
+.big{font-size:4rem}
+.sorry{background:var(--card);border-radius:20px;padding:28px 22px;max-width:340px;box-shadow:0 8px 30px rgba(230,62,109,.25);animation:pop .8s ease}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+.float{position:fixed;bottom:-30px;animation:rise linear forwards;pointer-events:none}
+@keyframes rise{to{transform:translateY(-110vh)}}
+</style>
+</head>
+<body>
+<div id="track">
+  <section class="page">
+    <div class="big">🥺</div>
+    <h1>Are you angry?</h1>
+    <p>Please don't be...</p>
+    <div class="hint">← swipe left</div>
+  </section>
+
+  <section class="page">
+    <h1>Let your anger fade here</h1>
+    <!-- To use a real photo, put a data: URI or image in PHOTO below -->
+    <svg id="face" viewBox="0 0 200 200" aria-label="tap me">
+      <circle cx="100" cy="100" r="90" fill="#ffd9a8" stroke="#e8a96a" stroke-width="4"/>
+      <circle cx="62" cy="125" r="12" fill="#ff9aa9" opacity=".6"/>
+      <circle cx="138" cy="125" r="12" fill="#ff9aa9" opacity=".6"/>
+      <g id="eyes"><circle cx="70" cy="90" r="9" fill="#3a2418"/><circle cx="130" cy="90" r="9" fill="#3a2418"/></g>
+      <path id="brows" d="M55 70 Q70 62 85 70 M115 70 Q130 62 145 70" stroke="#3a2418" stroke-width="5" fill="none" stroke-linecap="round"/>
+      <path id="mouth" d="M70 135 Q100 155 130 135" stroke="#3a2418" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <g id="tears" opacity="0" fill="#6ec1ff"><path d="M70 102 q-8 16 0 22 q8 -6 0 -22z"/><path d="M130 102 q-8 16 0 22 q8 -6 0 -22z"/></g>
+    </svg>
+    <div id="msg">Touch my face 👆</div>
+    <div id="dots"></div>
+  </section>
+
+  <section class="page">
+    <div class="sorry">
+      <div class="big">😢</div>
+      <p>I never want to make you sad.</p>
+      <p>I am truly sorry 🥺</p>
+      <p>Badly missing your bok bok.....</p>
+    </div>
+  </section>
+</div>
+
+<script>
+const track=document.getElementById('track');
+const face=document.getElementById('face');
+const msg=document.getElementById('msg');
+const dotsEl=document.getElementById('dots');
+let page=0,taps=0;
+for(let i=0;i<5;i++){const d=document.createElement('div');d.className='dot';dotsEl.appendChild(d);}
+
+function go(p){page=p;track.style.transform='translateX(-'+(p*100/3)+'%)';}
+
+// Swipe left (touch or mouse drag) on page 1
+let sx=null;
+function down(x){sx=x;}
+function up(x){
+  if(sx!==null && page===0 && x-sx<-50) go(1);
+  sx=null;
+}
+addEventListener('touchstart',e=>down(e.touches[0].clientX),{passive:true});
+addEventListener('touchend',e=>up(e.changedTouches[0].clientX),{passive:true});
+addEventListener('mousedown',e=>down(e.clientX));
+addEventListener('mouseup',e=>up(e.clientX));
+
+// Hurt reactions
+const hurt=['Ouch!','Ouch!','Ouch!','Ouch!','Ouch!'];
+const mouths=['M70 140 Q100 140 130 140','M70 145 Q100 130 130 145','M70 150 Q100 125 130 150','M65 152 Q100 118 135 152','M60 155 Q100 112 140 155'];
+function burst(){
+  for(let i=0;i<14;i++){
+    const s=document.createElement('div');
+    s.className='float';
+    s.textContent=['😢','🥺','😔','💧'][i%4];
+    s.style.left=Math.random()*95+'vw';
+    s.style.fontSize=(18+Math.random()*24)+'px';
+    s.style.animationDuration=(3+Math.random()*3)+'s';
+    document.body.appendChild(s);
+    setTimeout(()=>s.remove(),6500);
+  }
+}
+face.addEventListener('click',()=>{
+  if(taps>=5)return;
+  taps++;
+  face.classList.remove('shake');void face.getBoundingClientRect();face.classList.add('shake');
+  msg.textContent=hurt[taps-1];
+  document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i<taps));
+  document.getElementById('mouth').setAttribute('d',mouths[taps-1]);
+  document.getElementById('tears').setAttribute('opacity',Math.min(1,taps*.25));
+  document.getElementById('brows').setAttribute('d',taps>2?'M55 66 Q70 76 85 70 M115 70 Q130 76 145 66':'M55 70 Q70 62 85 70 M115 70 Q130 62 145 70');
+  if(navigator.vibrate)try{navigator.vibrate(60)}catch(e){}
+  if(taps===5)setTimeout(()=>{go(2);burst();},1200);
+});
+</script>
+</body>
+</html>
